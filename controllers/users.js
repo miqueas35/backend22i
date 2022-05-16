@@ -6,14 +6,20 @@ const Usuario = require("../models/usuario");
 //importar bcryptjs
 const bcryptjs = require("bcryptjs");
 
-const usersGet = (req = request, res = response) => {
-  const { nombre = "No Name", apikey, limit = 5, page = 1 } = req.query;
+const usersGet = async (req = request, res = response) => {
+  const { limit = 5, desde = 0 } = req.query;
+
+  /*  const usuarios = await Usuario.find().skip(desde).limit(limit);
+  const total = await Usuario.countDocuments();
+ */
+  const [total, usuarios] = await Promise.all([
+    Usuario.countDocuments(),
+    Usuario.find().skip(Number(desde)).limit(Number(limit)),
+  ]);
+
   res.json({
-    msg: "largando backend",
-    nombre,
-    apikey,
-    limit,
-    page,
+    usuarios,
+    total,
   });
 };
 
@@ -34,12 +40,22 @@ const userPost = async (req = request, res = response) => {
   });
 };
 
-const userPut = (req = request, res = response) => {
+const userPut = async (req = request, res = response) => {
   const id = req.params.id;
+  const { password, correo, google, ...resto } = req.body;
+
+  //validar password contra la BD
+  if (password) {
+    //encriptar la contraseña
+    const salt = bcryptjs.genSaltSync();
+    resto.password = bcryptjs.hashSync(password, salt);
+  }
+
+  //actualizo los datos
+  const usuario = await Usuario.findByIdAndUpdate(id, resto, { new: true });
 
   res.json({
-    msg: "PUT - info actualizada",
-    id,
+    usuario,
   });
 };
 

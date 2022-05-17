@@ -8,13 +8,14 @@ const bcryptjs = require("bcryptjs");
 
 const usersGet = async (req = request, res = response) => {
   const { limit = 5, desde = 0 } = req.query;
+  const query = { estado: true };
 
   /*  const usuarios = await Usuario.find().skip(desde).limit(limit);
   const total = await Usuario.countDocuments();
  */
   const [total, usuarios] = await Promise.all([
-    Usuario.countDocuments(),
-    Usuario.find().skip(Number(desde)).limit(Number(limit)),
+    Usuario.countDocuments(query),
+    Usuario.find(query).skip(Number(desde)).limit(Number(limit)),
   ]);
 
   res.json({
@@ -59,12 +60,21 @@ const userPut = async (req = request, res = response) => {
   });
 };
 
-const userDelete = (req = request, res = response) => {
+const userDelete = async (req = request, res = response) => {
   const id = req.params.id;
 
-  res.json({
-    msg: "DELETE - info eliminada",
+  //Eliminar fisicamente el registro
+  // const usuarioBorrado = await Usuario.findByIdAndDelete(id);
+
+  //Inactivar el registro del usuario
+  const usuarioBorrado = await Usuario.findByIdAndUpdate(
     id,
+    { estado: false },
+    { new: true }
+  );
+
+  res.json({
+    usuarioBorrado,
   });
 };
 

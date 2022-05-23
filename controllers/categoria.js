@@ -1,6 +1,5 @@
 const { response } = require("express");
-const { Categoria } = require("../models/categoria");
-const usuario = require("../models/usuario");
+const Categoria = require("../models/categoria");
 
 //obtener todas las categorias paginadas y traeremos los datos del usuario que creo la categoria
 const obtenerCategorias = async (req, res) => {

@@ -70,8 +70,8 @@ const crearProducto = async (req, res = response) => {
 const actualizarProducto = async (req, res) => {
   const { id } = req.params;
   const { precio, categoria, descripcion, disponible } = req.body;
-
   const usuario = req.usuario._id;
+
   let data = {
     precio,
     descripcion,
